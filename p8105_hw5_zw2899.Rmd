@@ -27,10 +27,34 @@ homicide_data = homicide_data %>%
 
 Next, we summarize within cities to get the total count of homicides and the total count of unsolved homicides.
 ```{r}
-homicide_data %>%
+count_summ = homicide_data %>%
   group_by(city) %>%
   summarize(total_count = n(), # total homicide count by city
             unsolved_count = sum(disposition %in% c("Closed without arrest", "Open/No arrest"))) # total unsolved homicide count by city
+
+count_summ
+```
+Next we zoom in on the city of Baltimore, MD. We use the prop.test function to estimate the proportion of homicides that were left unsolved and tidy the output:
+```{r}
+baltimore_summ = count_summ %>%
+  filter(city == "Baltimore") 
+  
+baltimore_proptest_result = prop.test(Baltimore_summ$unsolved_count, baltimore_summ$total_count) %>% 
+  broom::tidy() %>%
+  select(estimate, conf.low, conf.high) 
+
+baltimore_proptest_result
+```
+We repeat the operations above for all cities in our dataset.
+```{r}
+city_proptests = 
+  purrr::map2_df(.x = count_summ$unsolved_count,
+            .y = count_summ$total_count,
+            ~broom::tidy(prop.test(.x, .y))) %>%
+  select(estimate, conf.low, conf.high) %>%
+  mutate(city = count_summ$city)
+
+city_proptests
 ```
 
 
