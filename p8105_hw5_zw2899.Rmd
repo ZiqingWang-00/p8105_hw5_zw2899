@@ -1,0 +1,48 @@
+---
+title: "HW5"
+author: "Ziqing Wang"
+date: "2022-11-13"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+```
+
+## Problem 2
+First, import the data as follows.
+```{r}
+homicide_data = read_csv("./data/homicide-data.csv", skip = 0)
+head(homicide_data)
+```
+The dataset has `r nrow(homicide_data)` observations and `r ncol(homicide_data)` variables. Each observation is a murder case, where the case ID, reported date, victim information (first and last names, race, age, and sex), the physical location of the case (city, state, longitude, and latitude), and a desposition of the case were recorded.  
+
+Proceed with some data processing - First, we create a city-state variable. 
+```{r}
+homicide_data = homicide_data %>%
+  mutate(city_state = str_c(city, state, sep = ", "))
+```
+
+Next, we summarize within cities to get the total count of homicides and the total count of unsolved homicides.
+```{r}
+homicide_data %>%
+  group_by(city) %>%
+  summarize(total_count = n(), # total homicide count by city
+            unsolved_count = sum(disposition %in% c("Closed without arrest", "Open/No arrest"))) # total unsolved homicide count by city
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
