@@ -207,7 +207,7 @@ sim_results %>%
 
 From the plot above, we can see that the sample average of $\hat \mu$ across tests for which the null was rejected does not approaximately equal to the true mean when the effect size is small (e.g., when $\mu = \{1,2,3\}$).  
 
-But when the effect size is large ($\mu \leq 4$), the sample average of $\hat \mu$ across tests for which the null was rejected does approximately equal to the true mean.  
+But when the effect size is large, e.g., $\mu \geq 4$, the sample average of $\hat \mu$ across tests for which the null was rejected does approximately equal to the true mean.  
 
 The reason for this discrepancy is the positive relationship of effect size and power we illustrated before - when the effect size is small, the power is low, which means that the t test is more likely to fail to reject the null, making type-2 errors. Therefore, the sample average of $\hat \mu$ where the null was correctly rejected will be biased away from the true mean. However, when the effect size is large, the power is high, so the t test correctly rejects the null almost all the time. As a result, the number of $\hat \mu$ from samples where the null was incorrectly not rejected is small, which means removing them does not move the average of $\hat \mu$ away from the null much.
 
