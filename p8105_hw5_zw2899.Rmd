@@ -101,7 +101,7 @@ Next we zoom in on the city of Baltimore, MD. We use the prop.test function to e
 baltimore_summ = count_summ %>%
   filter(city == "Baltimore") 
   
-baltimore_proptest_result = prop.test(Baltimore_summ$unsolved_count, baltimore_summ$total_count) %>% 
+baltimore_proptest_result = prop.test(baltimore_summ$unsolved_count, baltimore_summ$total_count) %>% 
   broom::tidy() %>%
   select(estimate, conf.low, conf.high) 
 
@@ -120,7 +120,7 @@ city_proptests =
 city_proptests
 ```
 
-Below is a plot that shows the estimates and CIs for each city.
+Below is a plot that shows the estimates (in descending order) and CIs for each city.
 ```{r unsolved homicides by city plot}
 ggplot(city_proptests, 
        aes(x = estimate, y = fct_reorder(city, estimate, .desc=F))) +
@@ -155,7 +155,7 @@ sim_results_at_0
 
 ```
 
-Repeat the follows for $\mu = {1,2,3,4,5,6}$.
+Repeat the follows for $\mu = \{1,2,3,4,5,6\}$.
 ```{r}
 sim_results = 
   expand_grid(mu = 1:6, 
@@ -181,11 +181,35 @@ sim_results %>%
 ```
 We can see that power increases with effect size. When the effect size is low, i.e., the true mean $\mu$ is close to 0, the power is low. For instance, when $\mu = 1$, the power is about 0.2. But for $\mu \geq 4$, the power becomes very close to 1.
 
+Below is a plot showing the average estimate of $\hat \mu$ on the y axis and the true value of μ on the x axis.
+```{r avg mu hat vs mu}
+sim_results %>% 
+  group_by(mu) %>%
+  summarize(avg_mu_hat = mean(estimate)) %>%
+  ggplot(aes(x = mu, y = avg_mu_hat)) + geom_point(size = 2) + geom_line() +
+  labs(x = "True mean (mu)", y = "average of simulation estimates of mu",
+       title = "average of estimates of true mean vs. true mean")
+```
 
+From the plot above, we can see that the average of all estimates $\hat \mu$ approximately equals to the true mean $\mu$, as we expected from the normal model.
 
+Below is a second plot (or overlay on the first) the average estimate of $\hat \mu$ only in samples for which the null was rejected.
 
+```{r avg of significant mu hat vs mu}
+sim_results %>% 
+  filter(p.value < 0.05) %>%
+  group_by(mu) %>%
+  summarize(avg_mu_hat = mean(estimate)) %>%
+  ggplot(aes(x = mu, y = avg_mu_hat)) + geom_point(size = 2) + geom_line() +
+  labs(x = "True mean (mu)", y = "average of significant simulation estimates of mu (alpha = 0.05)",
+       title = "average of estimates of true mean vs. true mean")
+```
 
+From the plot above, we can see that the sample average of $\hat \mu$ across tests for which the null was rejected does not approaximately equal to the true mean when the effect size is small (e.g., when $\mu = \{1,2,3\}$).  
 
+But when the effect size is large ($\mu \leq 4$), the sample average of $\hat \mu$ across tests for which the null was rejected does approximately equal to the true mean.  
+
+The reason for this discrepancy is the positive relationship of effect size and power we illustrated before - when the effect size is small, the power is low, which means that the t test is more likely to fail to reject the null, making type-2 errors. Therefore, the sample average of $\hat \mu$ where the null was correctly rejected will be biased away from the true mean. However, when the effect size is large, the power is high, so the t test correctly rejects the null almost all the time. As a result, the number of $\hat \mu$ from samples where the null was incorrectly not rejected is small, which means removing them does not move the average of $\hat \mu$ away from the null much.
 
 
 
